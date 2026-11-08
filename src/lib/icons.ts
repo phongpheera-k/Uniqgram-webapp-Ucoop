@@ -21,6 +21,8 @@ export const IC = {
   check: "M20 6L9 17l-5-5",
   clock: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 7v5l3 2",
   x: "M18 6L6 18M6 6l12 12",
+  menu: "M4 6h16M4 12h16M4 18h16",
+  close: "M18 6L6 18M6 6l12 12",
   minus: "M5 12h14",
   alert: "M12 3L2 21h20zM12 10v4M12 17h.01",
   search: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-4.3-4.3",

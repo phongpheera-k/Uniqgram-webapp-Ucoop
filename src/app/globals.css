@@ -1,3 +1,29 @@
+@import "tailwindcss";
+
+/* Tailwind v4 theme: design tokens exposed as utilities (bg-teal, text-slate, border-line, font-sans …).
+   Legacy component classes below are unlayered, so they take precedence over Tailwind's preflight and
+   utilities; new UI should be written with utilities and these classes migrated over time. */
+@theme inline {
+  --color-teal: #0e5a73;
+  --color-teal-dark: #0a4457;
+  --color-teal-light: #e6f0f3;
+  --color-teal-accent: #4fb3d1;
+  --color-slate: #10202b;
+  --color-neutral: #f3f5f7;
+  --color-ink: #1b2530;
+  --color-muted: #5a6672;
+  --color-line: #dce1e6;
+  --color-line-soft: #ebeef1;
+  --color-ok: #1a6439;
+  --color-ok-bg: #e3f2e8;
+  --color-warn: #744b00;
+  --color-warn-bg: #fcefd3;
+  --color-bad: #9e1c12;
+  --color-bad-bg: #fbe5e3;
+  --font-sans: var(--font-sarabun), "Sarabun", "Noto Sans Thai", system-ui, sans-serif;
+  --breakpoint-nav: 1024px;
+}
+
 /* Ucoop design system — ported from design/prototype/Main.dc.html
    Tokens: Sarabun · Deep Teal #0E5A73 · Slate #10202B · Neutral #F3F5F7 */
 :root {
@@ -31,6 +57,10 @@ h1,h2,h3{line-height:1.3}
 .topbar{position:sticky;top:0;z-index:30;background:var(--slate);color:#e4eaee;border-bottom:1px solid #0a151d}
 .topbar-in{display:flex;align-items:center;gap:16px;height:64px;padding:0 16px 0 20px}
 .backdrop{position:fixed;inset:0;z-index:25;background:transparent;border:0;padding:0;margin:0;cursor:default}
+.topnav{display:flex;align-items:center;gap:2px;flex:1;min-width:0;height:100%}
+.cat-wrap{position:relative;height:100%;display:flex;align-items:center}
+.topbar-sep{width:1px;height:28px;background:#2a3d4b;flex:none}
+.menu-btn{display:none}
 .brand{display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#fff;cursor:pointer;padding:6px 4px;border-radius:6px;flex:none;text-decoration:none}
 .brand:hover{color:#fff}
 .brand-mark{width:34px;height:34px;border-radius:8px;background:var(--teal);box-shadow:inset 0 0 0 1px #2a7f99;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px}
@@ -58,6 +88,7 @@ h1,h2,h3{line-height:1.3}
 .star:hover{background:#f1f3f5}
 .icon-btn{width:44px;height:44px;border:0;border-radius:22px;background:transparent;color:#e4eaee;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 .icon-btn:hover{background:#1c3140}
+.sbox-wrap{position:relative;display:flex;align-items:center;flex:none}
 .sbox{display:flex;align-items:center;border-radius:22px;transition:background .25s,box-shadow .25s}
 .sbox .s-in{width:0;padding:0;border:0;opacity:0;background:transparent;color:#fff;font-family:inherit;font-size:15px;height:44px;outline:none;transition:width .3s cubic-bezier(.2,.8,.2,1),opacity .2s,padding .3s}
 .sbox .s-in::placeholder{color:#a9b7c2}
@@ -140,11 +171,66 @@ h1,h2,h3{line-height:1.3}
 /* auth */
 .auth-wrap{min-height:100vh;display:flex;flex-wrap:wrap;background:var(--neutral)}
 .auth-side{flex:1 1 380px;background:var(--slate);color:#e4eaee;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;gap:40px}
-.auth-main{flex:1 1 460px;display:flex;align-items:center;justify-content:center;padding:32px 24px}
-.auth-card{width:440px;max-width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px;display:flex;flex-direction:column;gap:16px}
+.auth-main{flex:1 1 460px;min-width:0;display:flex;align-items:center;justify-content:center;padding:32px 24px}
+.auth-card{width:440px;min-width:0;max-width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px;display:flex;flex-direction:column;gap:16px}
 .sm-btn.demo{font-weight:500}
 
 @media (max-width:1180px){.soon-tag{display:none}.brand-sub{display:none}}
-@media (max-width:980px){.cat{padding:0 8px}.sbox.open .s-in{width:200px}}
+@media (max-width:1100px){.cat{padding:0 8px;gap:6px}.sbox.open .s-in{width:200px}.kbd{display:none}}
 @media (max-width:900px){.wgrid{grid-template-columns:minmax(0,1fr)}}
+
+/* Tablet & mobile (<=1024px): category bar becomes a slide-in drawer */
+@media (max-width:1024px){
+  .topbar-in{gap:8px;padding:0 8px 0 8px}
+  .menu-btn{display:flex}
+  .topbar-sep{display:none}
+  .brand-sub{display:none}
+  .topnav{display:none;position:fixed;top:64px;left:0;bottom:0;width:min(360px,90vw);z-index:35;flex:none;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:2px;height:auto;padding:8px;background:var(--slate);overflow-y:auto;box-shadow:8px 0 24px rgba(16,32,43,.35)}
+  .topnav.drawer-open{display:flex}
+  .cat-wrap{height:auto;display:block}
+  .cat{width:100%;height:48px}
+  .cat>span:first-of-type{flex:1;text-align:left}
+  .cat.is-open,.cat.is-soon.is-open{border-radius:6px;background:#1c3140;color:#fff}
+  .cat.is-open .soon-tag{background:#23394a;color:#b8c6d0}
+  .soon-tag{display:inline}
+  .popup{position:static;width:100%;max-width:none;margin:2px 0 6px;border-radius:8px;box-shadow:none;animation:none}
+  .sbox-wrap{position:static}
+  .sbox{margin-left:auto}
+  .results{position:fixed;left:8px;right:8px;top:68px;width:auto;max-width:none}
+  .dd{position:fixed;right:8px;top:68px;max-width:calc(100vw - 16px)}
+  .sbox.open{position:absolute;left:8px;right:8px;top:10px;z-index:41;background:#1f3442}
+  .sbox.open .s-in{flex:1;width:auto}
+  .main{padding:16px 16px 48px}
+  .auth-side{padding:32px 24px;gap:24px;flex-basis:100%}
+  .auth-main{flex-basis:100%}
+}
+
+/* Mobile (<=640px) */
+@media (max-width:640px){
+  body{font-size:16px}
+  .topbar-in{height:56px}
+  .topnav{top:56px}
+  .results,.dd{top:60px}
+  .brand-text span:first-child{font-size:16px}
+  .profile-btn span:last-child{display:none}
+  .main{padding:12px 12px 40px}
+  .page-head{padding-bottom:12px;margin-bottom:14px}
+  .page-head h1{font-size:22px}
+  .kpi-grid{grid-template-columns:minmax(0,1fr)!important}
+  .kpi-v{font-size:24px}
+  .panel{overflow-x:auto}
+  .tbl{min-width:520px}
+  .tbl th,.tbl td{padding:8px 10px}
+  .panel-h{flex-wrap:wrap;padding:10px 12px}
+  .task{padding:12px}
+  .btn,.sm-btn,.field{min-height:44px}
+  .sm-btn{height:44px}
+  .auth-side{padding:16px;gap:0}
+  .auth-side>div:nth-child(n+2){display:none!important}
+  .auth-main{padding-top:20px}
+  .auth-main{padding:16px 12px;align-items:flex-start}
+  .auth-card{padding:20px;border-radius:8px}
+  .modal{padding:20px}
+  .dl{grid-template-columns:minmax(0,1fr)}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

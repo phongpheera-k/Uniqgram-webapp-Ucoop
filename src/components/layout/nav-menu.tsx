@@ -11,10 +11,14 @@ interface Props {
   categories: ShellCategory[];
   openCat: string | null;
   setOpenCat: (id: string | null) => void;
+  /** Extra class for the <nav> (used by the mobile drawer). */
+  className?: string;
+  /** Called after navigating to an item (lets the mobile drawer close). */
+  onNavigate?: () => void;
 }
 
 /** Start menu (SHL-02, SHL-06): 6 categories, popup under the button, arrow/Enter/Esc keyboard control. */
-export function NavMenu({ categories, openCat, setOpenCat }: Props) {
+export function NavMenu({ categories, openCat, setOpenCat, className, onNavigate }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const barRef = useRef<HTMLElement>(null);
@@ -68,12 +72,12 @@ export function NavMenu({ categories, openCat, setOpenCat }: Props) {
   }
 
   return (
-    <nav aria-label="เมนูหลัก" ref={barRef} onKeyDown={onKeyDown} style={{ display: "flex", alignItems: "center", gap: 2, flex: 1, minWidth: 0, height: "100%" }}>
+    <nav id="main-nav" aria-label="เมนูหลัก" ref={barRef} onKeyDown={onKeyDown} className={`topnav${className ? ` ${className}` : ""}`}>
       {categories.map((c) => {
         const open = openCat === c.id;
         const cls = ["cat", open && "is-open", c.soon && "is-soon", activeCat === c.id && "is-active"].filter(Boolean).join(" ");
         return (
-          <div key={c.id} style={{ position: "relative", height: "100%", display: "flex", alignItems: "center" }}>
+          <div key={c.id} className="cat-wrap">
             <button type="button" className={cls} data-cat={c.id} aria-haspopup="true" aria-expanded={open} onClick={() => setOpenCat(open ? null : c.id)}>
               <Icon d={c.icon} />
               <span>{c.label}</span>
@@ -98,6 +102,7 @@ export function NavMenu({ categories, openCat, setOpenCat }: Props) {
                       onClick={() => {
                         if (it.soon || !it.route) return;
                         setOpenCat(null);
+                        onNavigate?.();
                         router.push(it.route);
                       }}
                     >

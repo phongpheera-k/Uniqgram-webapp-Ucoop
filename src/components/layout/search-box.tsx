@@ -74,7 +74,7 @@ export function SearchBox({ open, setOpen, items, canSearchMembers, kbdHint, cat
   }
 
   return (
-    <div onKeyDown={onKeyDown} style={{ position: "relative", display: "flex", alignItems: "center", flex: "none" }}>
+    <div onKeyDown={onKeyDown} className="sbox-wrap">
       <div className={`sbox${open ? " open" : ""}`}>
         <input
           ref={inputRef}

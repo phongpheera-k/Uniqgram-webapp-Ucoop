@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { Icon } from "@/components/ui/icon";
+import { IC } from "@/lib/icons";
 import { NavMenu } from "@/components/layout/nav-menu";
 import { SearchBox } from "@/components/layout/search-box";
 import { ProfileMenu } from "@/components/layout/profile-menu";
@@ -13,6 +15,7 @@ type Open = { kind: "none" } | { kind: "cat"; id: string } | { kind: "search" } 
 
 export function TopBar({ model }: { model: ShellModel }) {
   const [open, setOpen] = useState<Open>({ kind: "none" });
+  const [drawer, setDrawer] = useState(false); // mobile / tablet navigation drawer
   const kbdHint = useSyncExternalStore(
     () => () => {},
     () => (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "⌘K" : "Ctrl+K"),
@@ -31,12 +34,16 @@ export function TopBar({ model }: { model: ShellModel }) {
     return m;
   }, [model.categories]);
 
-  const anyOpen = open.kind !== "none";
+  const anyOpen = open.kind !== "none" || drawer;
+  const closeAll = () => { setOpen({ kind: "none" }); setDrawer(false); };
   return (
     <>
-      {anyOpen ? <button type="button" className="backdrop" tabIndex={-1} aria-label="ปิดเมนู" onClick={() => setOpen({ kind: "none" })} /> : null}
-      <header className="topbar" onKeyDown={(e) => { if (e.key === "Escape") setOpen({ kind: "none" }); }}>
+      {anyOpen ? <button type="button" className="backdrop" tabIndex={-1} aria-label="ปิดเมนู" onClick={closeAll} /> : null}
+      <header className="topbar" onKeyDown={(e) => { if (e.key === "Escape") closeAll(); }}>
         <div className="topbar-in">
+          <button type="button" className="icon-btn menu-btn" aria-label={drawer ? "ปิดเมนู" : "เปิดเมนู"} aria-expanded={drawer} aria-controls="main-nav" onClick={() => { setOpen({ kind: "none" }); setDrawer(!drawer); }}>
+            <Icon d={drawer ? IC.close : IC.menu} size={22} stroke={2} />
+          </button>
           <Link href="/dashboard" className="brand" aria-label="Ucoop หน้าหลัก">
             <span className="brand-mark">U</span>
             <span className="brand-text">
@@ -44,8 +51,8 @@ export function TopBar({ model }: { model: ShellModel }) {
               <span className="brand-sub">สหกรณ์ออมทรัพย์</span>
             </span>
           </Link>
-          <span aria-hidden="true" style={{ width: 1, height: 28, background: "#2a3d4b", flex: "none" }} />
-          <NavMenu categories={model.categories} openCat={open.kind === "cat" ? open.id : null} setOpenCat={(id) => setOpen(id ? { kind: "cat", id } : { kind: "none" })} />
+          <span aria-hidden="true" className="topbar-sep" />
+          <NavMenu className={drawer ? "drawer-open" : undefined} onNavigate={() => setDrawer(false)} categories={model.categories} openCat={open.kind === "cat" ? open.id : null} setOpenCat={(id) => setOpen(id ? { kind: "cat", id } : { kind: "none" })} />
           <SearchBox
             open={open.kind === "search"}
             setOpen={(v) => setOpen(v ? { kind: "search" } : { kind: "none" })}
