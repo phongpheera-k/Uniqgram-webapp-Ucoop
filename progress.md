@@ -21,6 +21,7 @@ Project rules: `../../CLAUDE.md`, `../../AGENTS.md`, skill `../../.agents/skills
 | 0003–0006 | Members list / approvals / profile / registration / admin | Not started (routes are placeholders) |
 | Responsive | Phone ≤640px, tablet, desktop; drawer navigation below 1025px | Done |
 | Tailwind | All components on Tailwind v4 utilities; legacy CSS removed | Done |
+| Storybook | Complete Storybook design system & component CSS (12 stories, Tailwind v4, Sarabun) | Done |
 
 ## Remaining work
 1. **Commit + push** the Tailwind migration, responsive fixes and docs (nothing is committed from this session's last change set).
@@ -39,7 +40,9 @@ Zod, bcryptjs, vitest 5, **Tailwind CSS v4** (`tailwindcss`, `@tailwindcss/postc
 ## Run
 ```bash
 cd webapp/ucoop
-npm run dev        # http://localhost:3000
+npm run dev              # http://localhost:3000
+npm run storybook        # http://localhost:6006
+npm run build-storybook  # builds static storybook to storybook-static/
 npm run typecheck && npx eslint src && npm test && npm run build
 ```
 Env (Zod, `src/lib/env.ts`): `SESSION_IDLE_MINUTES` (30), `MAX_LOGIN_ATTEMPTS` (5), `DEMO_MODE` (on outside production).
@@ -87,6 +90,24 @@ Demo accounts, password `Demo@1234`: `admin.wipa`, `reg.somsak` (first login), `
 - Turbopack cannot build from a `node_modules` symlink (needed a real copy for the before/after comparison worktree).
 
 ## Change log (newest first)
+### 2026-11-08 — Storybook for Ucoop Design System & Component CSS
+- **Done:** Set up Storybook 10.6 (`@storybook/nextjs-vite`) supporting React 19 + Next.js 16 + Tailwind CSS v4. Configured `.storybook/preview.tsx` with `globals.css` import, viewports (Mobile 390px, Tablet 768px, Desktop 1440px), background presets, and `.storybook/preview-head.html` with Google Fonts Sarabun.
+- **Stories created (12 modules):**
+  1. `01-Tokens.stories.tsx`: Color palette (Brand, Text, Status, Surfaces) and Sarabun typography & line-height 1.5.
+  2. `02-Buttons.stories.tsx`: `BTN`, `BTN_GHOST`, `BTN_SM`, `BTN_SM_MEDIUM`, `LINK_BTN`, `CRUMB`, disabled & touch targets.
+  3. `03-StatusChips.stories.tsx`: All semantic `StatusChip` options (active, approved, pending, docs, rejected, resigned, live, soon, paid) and generic `Chip` tones.
+  4. `04-Alerts.stories.tsx`: `Alert` with all tones (bad, warn, info, ok) and accessible ARIA live regions.
+  5. `05-Panels.stories.tsx`: `PANEL` and `PANEL_H` with headers, action buttons, tables, and description lists.
+  6. `06-Forms.stories.tsx`: `LABEL`, `FIELD`, `FIELD_ERR`, `FIELD_ERR_TEXT`, dropdowns, and `PasswordRulesList`.
+  7. `07-Tables.stories.tsx`: `TABLE`, `NUM`, `TNUM`, sortable headers, hover states, and PDPA masked citizen ID.
+  8. `08-KPI.stories.tsx`: `KPI_GRID`, `KPI`, `KPI_VALUE` for staff & member dashboards.
+  9. `09-Skeleton.stories.tsx`: `Skeleton`, `TableSkeleton`, `CardsSkeleton` with `animate-shim`.
+  10. `10-Icons.stories.tsx`: Visual directory of all system icons from `src/lib/icons.ts`.
+  11. `11-FeedbackStates.stories.tsx`: 4-state views (`EmptyState`, `ForbiddenView`, `ComingSoon`, `ErrorState` with retry).
+  12. `12-Modals.stories.tsx`: `MODAL_BG` and `MODAL` for confirmation, return with reason, and session expired.
+- **Fixes:** added `sort` icon to `src/lib/icons.ts`; fixed `PasswordRulesList` typing in story.
+- **Verified:** `npm run typecheck` (tsc --noEmit: 0 errors), `npm test` (vitest: 13 test files, 28 tests pass), `npm run build-storybook` (0 errors), `npm run build` (Next.js build: 0 errors).
+
 ### 2026-11-08 — Tailwind migration + prototype fidelity check + docs
 - **Done:** removed all hand-written component CSS (~230 lines) and static inline styles; every component under `src/components`, `src/features`, `src/app` now uses Tailwind utilities, with shared strings in `src/components/ui/styles.ts`. `Icon` takes `className` (no `style`). New `postcss.config.mjs`, tokens in `@theme`.
 - **Fidelity check:** built the pre-migration commit (`fed2fb0`) in a worktree and diffed computed styles element-by-element (≈30 properties + geometry) for login, dashboard, members, reports, profile, change-password at 1440 / 768 / 375 px. Remaining differences are intentional: headings bold + line-height 1.5 (match `design/prototype/Main.dc.html`), panel header 3px taller from that line-height, and the hamburger no longer shows on desktop (it was visible at ≥1025px before — a bug from the earlier responsive commit).

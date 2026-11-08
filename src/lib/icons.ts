@@ -32,6 +32,7 @@ export const IC = {
   logout: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-7M21 12H9",
   download: "M12 3v12M7 10l5 5 5-5M4 21h16",
   inbox: "M3 7l2-4h14l2 4v13H3zM3 7h18M9 12h6",
+  sort: "M8 9l4-4 4 4M16 15l-4 4-4-4",
 } as const;
 
 export type IconKey = keyof typeof IC;
