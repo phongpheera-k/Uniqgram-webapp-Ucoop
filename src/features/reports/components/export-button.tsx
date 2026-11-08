@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { Icon } from "@/components/ui/icon";
 import { IC } from "@/lib/icons";
 import { exportMemberReportAction } from "@/features/reports/server/report-actions";
+import { BTN_SM } from "@/components/ui/styles";
+import { cn } from "@/lib/utils";
 
 export function ExportReportButton() {
   const [pending, start] = useTransition();
@@ -26,9 +28,9 @@ export function ExportReportButton() {
   }
 
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-      {msg ? <span role="status" style={{ fontSize: 14, color: msg.ok ? "var(--ok)" : "var(--bad)" }}>{msg.text}</span> : null}
-      <button type="button" className="sm-btn" onClick={run} disabled={pending}>
+    <span className="inline-flex items-center gap-2.5">
+      {msg ? <span role="status" className={cn("text-sm", msg.ok ? "text-ok" : "text-bad")}>{msg.text}</span> : null}
+      <button type="button" className={BTN_SM} onClick={run} disabled={pending}>
         <Icon d={IC.download} size={16} />
         {pending ? "กำลังส่งออก…" : "ส่งออกรายงาน"}
       </button>

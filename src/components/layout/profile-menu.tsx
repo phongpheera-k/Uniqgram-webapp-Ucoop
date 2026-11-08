@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useRef } from "react";
 import { Icon } from "@/components/ui/icon";
 import { IC } from "@/lib/icons";
+import { cn } from "@/lib/utils";
 import { logoutAction, switchDemoUserAction } from "@/features/auth/server/auth-actions";
 import type { DemoRoleOption, ShellUser } from "@/features/shell/types";
+
+const ITEM = "flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-md border-0 bg-transparent px-3 py-2 text-left text-inherit no-underline hover:bg-hover hover:text-inherit focus-visible:bg-hover";
 
 interface Props {
   user: ShellUser;
@@ -29,11 +32,11 @@ export function ProfileMenu({ user, open, setOpen, demoRoles }: Props) {
   }
 
   return (
-    <div ref={wrapRef} onKeyDown={onKeyDown} style={{ position: "relative", flex: "none" }}>
+    <div ref={wrapRef} onKeyDown={onKeyDown} className="relative flex-none">
       <button
         ref={btnRef}
         type="button"
-        className="profile-btn"
+        className="flex cursor-pointer flex-col items-center gap-0.5 rounded-lg border-0 bg-transparent px-2 py-1 text-bar-text hover:bg-bar-hover"
         aria-haspopup="true"
         aria-expanded={open}
         aria-label={`เมนูผู้ใช้ ${user.username}`}
@@ -42,42 +45,42 @@ export function ProfileMenu({ user, open, setOpen, demoRoles }: Props) {
           if (!open) requestAnimationFrame(() => requestAnimationFrame(() => wrapRef.current?.querySelector<HTMLElement>("[data-pm]")?.focus()));
         }}
       >
-        <span style={{ width: 34, height: 34, borderRadius: 17, background: "var(--teal-light)", color: "var(--teal)", boxShadow: "0 0 0 2px var(--teal-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>{user.initials}</span>
-        <span style={{ fontSize: 12, lineHeight: "14px", color: "#d3dce2", maxWidth: 96, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.username}</span>
+        <span className="flex size-[34px] items-center justify-center rounded-full bg-teal-light text-sm font-bold text-teal shadow-[0_0_0_2px_var(--color-teal-accent)]">{user.initials}</span>
+        <span className="max-w-24 truncate text-xs leading-3.5 text-[#d3dce2] max-[640px]:hidden">{user.username}</span>
       </button>
       {open ? (
-        <div className="dd" role="menu" aria-label="เมนูผู้ใช้">
-          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px 12px", borderBottom: "1px solid var(--line-soft)", marginBottom: 6 }}>
-            <span style={{ width: 44, height: 44, borderRadius: 22, background: "var(--teal-light)", color: "var(--teal)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, flex: "none" }}>{user.initials}</span>
-            <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-              <span style={{ fontWeight: 700 }}>{user.name}</span>
-              <span style={{ fontSize: 14, color: "var(--muted)" }}>{user.username} · {user.roleName}</span>
+        <div className="fixed top-[68px] right-2 z-40 w-[300px] max-w-[calc(100vw-16px)] animate-drop rounded-lg border border-line bg-white p-2 text-ink shadow-[0_12px_32px_rgba(16,32,43,.22)] max-[640px]:top-[60px] nav:absolute nav:top-[62px] nav:right-0" role="menu" aria-label="เมนูผู้ใช้">
+          <div className="mb-1.5 flex items-center gap-3 border-b border-line-soft px-3 pt-2 pb-3">
+            <span className="flex size-11 flex-none items-center justify-center rounded-full bg-teal-light font-bold text-teal">{user.initials}</span>
+            <span className="flex min-w-0 flex-col">
+              <span className="font-bold">{user.name}</span>
+              <span className="text-sm text-muted">{user.username} · {user.roleName}</span>
             </span>
           </div>
-          <Link href="/profile" className="dd-item" data-pm="1" role="menuitem" onClick={() => setOpen(false)}>
+          <Link href="/profile" className={ITEM} data-pm="1" role="menuitem" onClick={() => setOpen(false)}>
             <Icon d={IC.user} color="#4a5560" /><span>โปรไฟล์ของฉัน</span>
           </Link>
-          <Link href="/profile/password" className="dd-item" data-pm="1" role="menuitem" onClick={() => setOpen(false)}>
+          <Link href="/profile/password" className={ITEM} data-pm="1" role="menuitem" onClick={() => setOpen(false)}>
             <Icon d={IC.lock} color="#4a5560" /><span>เปลี่ยนรหัสผ่าน</span>
           </Link>
           {demoRoles.length > 0 ? (
-            <div style={{ borderTop: "1px solid var(--line-soft)", marginTop: 6 }}>
-              <div className="dd-label" style={{ paddingTop: 10 }}><span>สลับบทบาท</span><span style={{ fontWeight: 500 }}>โหมดทดลอง</span></div>
+            <div className="mt-1.5 border-t border-line-soft">
+              <div className="flex justify-between px-3 pt-2.5 pb-0.5 text-[13px] font-semibold text-muted"><span>สลับบทบาท</span><span className="font-medium">โหมดทดลอง</span></div>
               {demoRoles.map((r) => (
                 <form key={r.username} action={switchDemoUserAction}>
                   <input type="hidden" name="username" value={r.username} />
-                  <button type="submit" className="dd-item" data-pm="1" role="menuitemradio" aria-checked={r.current} style={{ minHeight: 40 }}>
-                    <span className={`radio${r.current ? " on" : ""}`} aria-hidden="true" />
-                    <span style={{ flex: 1 }}>{r.roleName}</span>
-                    <span style={{ fontSize: 13, color: "var(--muted)" }}>{r.username}</span>
+                  <button type="submit" className={cn(ITEM, "min-h-10")} data-pm="1" role="menuitemradio" aria-checked={r.current}>
+                    <span className={cn("flex size-[18px] flex-none items-center justify-center rounded-full border-2", r.current ? "border-teal after:size-2 after:rounded-full after:bg-teal after:content-['']" : "border-icon")} aria-hidden="true" />
+                    <span className="flex-1">{r.roleName}</span>
+                    <span className="text-[13px] text-muted">{r.username}</span>
                   </button>
                 </form>
               ))}
             </div>
           ) : null}
-          <form action={logoutAction} style={{ borderTop: "1px solid var(--line-soft)", marginTop: 6, paddingTop: 6 }}>
-            <button type="submit" className="dd-item" data-pm="1" role="menuitem" style={{ color: "var(--bad)" }}>
-              <Icon d={IC.logout} /><span style={{ fontWeight: 600 }}>ออกจากระบบ</span>
+          <form action={logoutAction} className="mt-1.5 border-t border-line-soft pt-1.5">
+            <button type="submit" className={cn(ITEM, "text-bad")} data-pm="1" role="menuitem">
+              <Icon d={IC.logout} /><span className="font-semibold">ออกจากระบบ</span>
             </button>
           </form>
         </div>

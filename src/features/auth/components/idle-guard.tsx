@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { IC } from "@/lib/icons";
 import { expireSessionAction } from "@/features/auth/server/auth-actions";
+import { BTN, CHIP_BASE, CHIP_TONE, MODAL, MODAL_BG } from "@/components/ui/styles";
+import { cn } from "@/lib/utils";
 
 const PING_EVERY_MS = 60_000;
 
@@ -56,15 +58,15 @@ export function IdleGuard({ idleMinutes }: { idleMinutes: number }) {
   if (!expired) return null;
   const href = expiredUser ? `/login?expired=1&u=${encodeURIComponent(expiredUser)}` : "/login?expired=1";
   return (
-    <div className="modal-bg" style={{ zIndex: 100 }}>
-      <div className="modal" role="alertdialog" aria-modal="true" aria-labelledby="m-ex" aria-describedby="m-exd">
-        <span className="chip warn" style={{ padding: 8, borderRadius: 10 }}>
+    <div className={cn(MODAL_BG, "z-100")}>
+      <div className={MODAL} role="alertdialog" aria-modal="true" aria-labelledby="m-ex" aria-describedby="m-exd">
+        <span className={cn(CHIP_BASE, CHIP_TONE.warn, "rounded-[10px] p-2")}>
           <Icon d={IC.clock} size={26} />
         </span>
-        <h2 id="m-ex" style={{ margin: 0, fontSize: 20 }}>เซสชันหมดอายุ</h2>
-        <p id="m-exd" style={{ margin: 0, color: "#4a5560" }}>ไม่มีการใช้งานเกิน {idleMinutes} นาที ระบบออกจากระบบให้เพื่อความปลอดภัย งานที่ยังไม่บันทึกอาจหายไป</p>
+        <h2 id="m-ex" className="m-0 text-xl">เซสชันหมดอายุ</h2>
+        <p id="m-exd" className="m-0 text-sub">ไม่มีการใช้งานเกิน {idleMinutes} นาที ระบบออกจากระบบให้เพื่อความปลอดภัย งานที่ยังไม่บันทึกอาจหายไป</p>
         {/* Full navigation so no stale client state survives. */}
-        <a ref={btn as unknown as React.Ref<HTMLAnchorElement>} href={href} className="btn">เข้าสู่ระบบอีกครั้ง</a>
+        <a ref={btn as unknown as React.Ref<HTMLAnchorElement>} href={href} className={BTN}>เข้าสู่ระบบอีกครั้ง</a>
       </div>
     </div>
   );

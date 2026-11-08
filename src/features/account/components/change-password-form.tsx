@@ -6,6 +6,8 @@ import { evaluatePasswordRules } from "@/lib/auth/password-rules";
 import { PasswordRulesList } from "@/features/auth/components/password-rules-list";
 import { changePasswordAction } from "@/features/account/server/account-actions";
 import { emptyPasswordState, type PasswordFormState } from "@/features/auth/types";
+import { BTN, FIELD, FIELD_ERR, FIELD_ERR_TEXT, LABEL, PANEL } from "@/components/ui/styles";
+import { cn } from "@/lib/utils";
 
 export function ChangePasswordForm() {
   const [state, setState] = useState<PasswordFormState>(emptyPasswordState);
@@ -20,8 +22,7 @@ export function ChangePasswordForm() {
 
   return (
     <form
-      className="panel"
-      style={{ maxWidth: 520, padding: 24, display: "flex", flexDirection: "column", gap: 16 }}
+      className={cn(PANEL, "flex max-w-[520px] flex-col gap-4 p-6")}
       onSubmit={(e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
@@ -35,23 +36,23 @@ export function ChangePasswordForm() {
     >
       {state.ok && state.message ? <Alert tone="ok" live="status">{state.message}</Alert> : null}
       <div>
-        <label className="lbl" htmlFor="pw-0">รหัสผ่านปัจจุบัน</label>
-        <input id="pw-0" name="currentPassword" className={`field${state.fieldErrors.currentPassword ? " err" : ""}`} type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} style={{ width: "100%", height: 44 }} aria-invalid={!!state.fieldErrors.currentPassword} />
-        {state.fieldErrors.currentPassword ? <div role="alert" className="ferr">{state.fieldErrors.currentPassword}</div> : null}
+        <label className={LABEL} htmlFor="pw-0">รหัสผ่านปัจจุบัน</label>
+        <input id="pw-0" name="currentPassword" className={cn(FIELD, state.fieldErrors.currentPassword && FIELD_ERR)} type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} aria-invalid={!!state.fieldErrors.currentPassword} />
+        {state.fieldErrors.currentPassword ? <div role="alert" className={FIELD_ERR_TEXT}>{state.fieldErrors.currentPassword}</div> : null}
       </div>
       <div>
-        <label className="lbl" htmlFor="pw-1">รหัสผ่านใหม่</label>
-        <input id="pw-1" name="newPassword" className="field" type="password" autoComplete="new-password" value={np1} onChange={(e) => setNp1(e.target.value)} style={{ width: "100%", height: 44 }} />
-        {state.fieldErrors.newPassword && state.rejectedSame === np1 ? <div role="alert" className="ferr">{state.fieldErrors.newPassword}</div> : null}
+        <label className={LABEL} htmlFor="pw-1">รหัสผ่านใหม่</label>
+        <input id="pw-1" name="newPassword" className={FIELD} type="password" autoComplete="new-password" value={np1} onChange={(e) => setNp1(e.target.value)} />
+        {state.fieldErrors.newPassword && state.rejectedSame === np1 ? <div role="alert" className={FIELD_ERR_TEXT}>{state.fieldErrors.newPassword}</div> : null}
       </div>
       <PasswordRulesList rules={rules} />
       <div>
-        <label className="lbl" htmlFor="pw-2">ยืนยันรหัสผ่านใหม่</label>
-        <input id="pw-2" name="confirmPassword" className={`field${mismatch ? " err" : ""}`} type="password" autoComplete="new-password" value={np2} onChange={(e) => setNp2(e.target.value)} style={{ width: "100%", height: 44 }} aria-invalid={mismatch} />
-        {mismatch ? <div role="alert" className="ferr">รหัสผ่านทั้งสองช่องไม่ตรงกัน</div> : null}
+        <label className={LABEL} htmlFor="pw-2">ยืนยันรหัสผ่านใหม่</label>
+        <input id="pw-2" name="confirmPassword" className={cn(FIELD, mismatch && FIELD_ERR)} type="password" autoComplete="new-password" value={np2} onChange={(e) => setNp2(e.target.value)} aria-invalid={mismatch} />
+        {mismatch ? <div role="alert" className={FIELD_ERR_TEXT}>รหัสผ่านทั้งสองช่องไม่ตรงกัน</div> : null}
       </div>
       <div>
-        <button type="submit" className="btn" disabled={!canSubmit}>{pending ? "กำลังบันทึก…" : "บันทึกรหัสผ่านใหม่"}</button>
+        <button type="submit" className={BTN} disabled={!canSubmit}>{pending ? "กำลังบันทึก…" : "บันทึกรหัสผ่านใหม่"}</button>
       </div>
     </form>
   );

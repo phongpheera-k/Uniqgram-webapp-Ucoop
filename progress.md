@@ -2,11 +2,15 @@
 
 Last updated: 2026-11-08
 
+> Rule (see `.agents/skills/nextjs-enterprise-architecture/SKILL.md` §6): after **every** piece of work, update this file —
+> add a *Change log* entry (what, how verified), refresh *Remaining work*, and the status table.
+
 ## Goal
 Thai-language savings-cooperative web app built with Next.js, following the design in `../../design/`
 (prototype `.dc.html` files + briefs) and the BRD in `../../brd/ucoop-prototype/`.
-Project rules: `../../CLAUDE.md`, `AGENTS.md` (feature-driven structure, thin `page.tsx`, server-only DAL with RBAC,
-PDPA masking + audit log, 4 UI states Ready/Loading/Empty/Error, tokens Sarabun / Teal #0E5A73 / Slate #10202B / Neutral #F3F5F7).
+Project rules: `../../CLAUDE.md`, `../../AGENTS.md`, skill `../../.agents/skills/nextjs-enterprise-architecture/SKILL.md`
+(feature-driven structure, thin `page.tsx`, server-only DAL with RBAC, PDPA masking + audit log, 4 UI states,
+**Tailwind CSS v4 only**, responsive, tokens Sarabun / Teal #0E5A73 / Slate #10202B / Neutral #F3F5F7).
 
 ## Status by story
 | Story | Scope | Status |
@@ -15,12 +19,21 @@ PDPA masking + audit log, 4 UI states Ready/Loading/Empty/Error, tokens Sarabun 
 | 0002 | App shell (start menu, search, profile menu, favorites) + Dashboard (staff / member) | Done |
 | 0007 | Account (change password) + Member in/out report with CSV export | Done |
 | 0003–0006 | Members list / approvals / profile / registration / admin | Not started (routes are placeholders) |
-| Responsive | Mobile and tablet layout | Done (see below) |
-| Tailwind | Tailwind v4 installed, tokens mapped | Done (foundation only, see below) |
+| Responsive | Phone ≤640px, tablet, desktop; drawer navigation below 1025px | Done |
+| Tailwind | All components on Tailwind v4 utilities; legacy CSS removed | Done |
+
+## Remaining work
+1. **Commit + push** the Tailwind migration, responsive fixes and docs (nothing is committed from this session's last change set).
+2. Stories **0003–0006** (members list/filters/approvals, profile tabs, registration wizard, admin users/roles/audit) — not requested yet.
+3. Visual comparison against the prototype was done **statically** (token/markup values + before/after computed-style diff). The prototype cannot be rendered locally because its runtime `design/prototype/support.js` is not in the repo. If the file is provided, do a real side-by-side pass.
+4. Not yet checked on a phone-sized viewport: first-password and forgot-password pages, idle-expired modal, landscape orientation.
+5. Replace the in-memory store (`src/lib/db/client.ts`) with a real database.
+6. Add `tailwind-merge`-free guard: avoid passing conflicting utilities to `cn()` (e.g. `BTN_SM_MEDIUM` exists for that reason). Consider adding `tailwind-merge` if more variants appear.
+7. Optional: automated visual/e2e tests (Playwright) for the 375 / 768 / 1440 viewports.
 
 ## Stack
 Next.js 16.4.5 (App Router, Turbopack, `proxy.ts` instead of middleware), React 19.3, TypeScript strict,
-Zod, bcryptjs, vitest 5, Tailwind CSS v4 (`@tailwindcss/postcss`).
+Zod, bcryptjs, vitest 5, **Tailwind CSS v4** (`tailwindcss`, `@tailwindcss/postcss`, `postcss`; no `tailwind.config`).
 `npm i` needs `--legacy-peer-deps` (vitest peer conflict).
 
 ## Run
@@ -45,43 +58,45 @@ Demo accounts, password `Demo@1234`: `admin.wipa`, `reg.somsak` (first login), `
 - PDPA: `maskNid`, NID check digit in `src/lib/pdpa/pii.ts`; every profile/report access goes through `logAudit`.
 - Thai Buddhist dates, Asia/Bangkok, in `src/lib/formatters/`.
 
+## Styling (Tailwind v4)
+- `src/app/globals.css` = `@import "tailwindcss"` + `@theme` tokens (colours `teal`, `slate`, `neutral`, `ink`, `sub`, `muted`,
+  `line*`, status `ok/warn/bad/mute(-bg)`, top-bar `bar-*`; `font-sans` = Sarabun; breakpoint `nav` = 1025px; `animate-drop`,
+  `animate-shim`) + a few `@layer base` rules (body 15px/1.5, bold headings, link colours, focus ring, reduced motion).
+  **No component CSS lives here.**
+- Shared class strings: `src/components/ui/styles.ts` (`BTN`, `BTN_GHOST`, `BTN_SM`, `PANEL`, `PANEL_H`, `TABLE`, `FIELD`,
+  `CHIP_*`, `ALERT_*`, `MAIN`, `AUTH_*`, `MODAL*`, …). Compose with `cn()`.
+- Inline `style` remains only for data-driven values (skeleton widths, report bar `%`).
+- Responsive: `max-[640px]:` for phones, `nav:` / `max-nav:` for desktop vs drawer shell. Drawer lives in `top-bar.tsx` + `nav-menu.tsx`.
+- `--text-*--line-height` are 1.5 in `@theme` to match the prototype's inherited 1.5; use `leading-[inherit]` when a child must keep a parent's tighter line-height (brand sub-title, KPI unit).
+
 ## Git / deployment
-- Repo: https://github.com/phongpheera-k/Uniqgram-webapp-Ucoop.git (branch `main`).
-- The user pushed the first commit themselves and stored credentials locally; Claude may push from now on
-  (never embed a token in the remote URL or git config).
-- Uncommitted at time of writing: responsive layout changes, Tailwind setup, this file.
-
-## Responsive layout (done)
-- `<=1024px`: category bar becomes a slide-in drawer (hamburger in `top-bar.tsx`, `NavMenu` props `className` /
-  `onNavigate`); categories expand as an accordion; search expands full-width; results and profile dropdown are fixed.
-- `<=640px`: single-column KPIs, tables scroll horizontally inside their panel, 44px touch targets,
-  login side panel collapses to the brand only.
-- Verified in the browser pane at 375px and 768px (login, dashboard, reports, drawer, search).
-- Not yet checked: profile and first-password pages on mobile, landscape phones.
-
-## Tailwind (foundation only)
-- Added `tailwindcss`, `@tailwindcss/postcss`, `postcss`, `postcss.config.mjs`.
-- `src/app/globals.css` starts with `@import "tailwindcss"` and an `@theme inline` block exposing the design tokens
-  (`bg-teal`, `text-slate`, `border-line`, `bg-neutral`, `text-muted`, status colours, `font-sans` = Sarabun).
-- The existing hand-written classes (`.topbar`, `.panel`, `.tbl`, `.btn` …) and inline styles were kept unchanged and are
-  unlayered, so they override Tailwind's preflight and utilities. Result: no visual change (checked login, dashboard,
-  change-password in a production build).
-- Not done: rewriting every component's classes and inline styles into utilities. Doing that all at once would be a
-  large, risky change. Recommended path: write new UI with utilities, and migrate legacy classes feature by feature
-  (shell/top-bar first), checking screenshots each time. Then remove the matching rules from `globals.css`.
+- Repo: https://github.com/phongpheera-k/Uniqgram-webapp-Ucoop.git (branch `main`), git root is `webapp/ucoop`.
+- The user stored credentials locally; Claude may push on request (never embed a token in the remote URL or git config).
+- Note: `../../AGENTS.md`, `../../CLAUDE.md` and `../../.agents/` sit **outside** this git repo (one level above the pushed root), so doc changes there are not pushed.
 
 ## Deviations / decisions worth knowing
 - Members search is mock data (`features/members/server/member-queries.ts`) until Story 0003.
 - Demo role switcher in the profile menu only exists when `DEMO_MODE` is on.
 - Placeholders for future stories use `MenuPlaceholderPage` (`features/shell/components/menu-page.tsx`).
+- Headings are bold and line-height is 1.5, as in the prototype (the intermediate Tailwind-foundation commit had accidentally made headings regular weight via preflight).
 
 ## Known gotchas
 - Port 3000 may already hold a stale server; kill with `lsof -ti :3000 | xargs kill`.
-- Inline `style` beats class rules: use `!important` when a media query must override an inline value
-  (e.g. `.auth-side>div:nth-child(n+2)`).
+- A Tailwind named text size (`text-sm`) also sets line-height; we map them to 1.5, but arbitrary sizes (`text-[17px]`) inherit.
+- Tailwind arbitrary-variant selectors (`[&_th]:…`) have higher specificity than plain utilities on the same cell; use `!` (e.g. `text-[15px]!`) to override.
+- Turbopack cannot build from a `node_modules` symlink (needed a real copy for the before/after comparison worktree).
 
-## Next steps
-1. Commit and push the responsive and Tailwind changes.
-2. Stories 0003–0006 when requested.
-3. Gradually migrate legacy CSS classes to Tailwind utilities.
-4. Replace the in-memory store with a real database.
+## Change log (newest first)
+### 2026-11-08 — Tailwind migration + prototype fidelity check + docs
+- **Done:** removed all hand-written component CSS (~230 lines) and static inline styles; every component under `src/components`, `src/features`, `src/app` now uses Tailwind utilities, with shared strings in `src/components/ui/styles.ts`. `Icon` takes `className` (no `style`). New `postcss.config.mjs`, tokens in `@theme`.
+- **Fidelity check:** built the pre-migration commit (`fed2fb0`) in a worktree and diffed computed styles element-by-element (≈30 properties + geometry) for login, dashboard, members, reports, profile, change-password at 1440 / 768 / 375 px. Remaining differences are intentional: headings bold + line-height 1.5 (match `design/prototype/Main.dc.html`), panel header 3px taller from that line-height, and the hamburger no longer shows on desktop (it was visible at ≥1025px before — a bug from the earlier responsive commit).
+- **Fixes found by the diff:** brand sub-title and KPI-unit line-height, report row header font size, mobile table header padding, brand name stays 17px, nav label alignment, `z-index` on desktop nav.
+- **Verified:** `npx tsc --noEmit`, `npx eslint src`, `npx vitest run` (9 pass), `npm run build`; manual check of desktop start-menu popup and profile dropdown, mobile drawer and search.
+- **Docs:** skill `SKILL.md` gets §5 Styling (Tailwind) and §6 Progress tracking; `AGENTS.md` / `CLAUDE.md` summaries updated.
+- **Not verified:** pages listed in *Remaining work* #4; real prototype render (see #3).
+
+### 2026-11-08 — Responsive layout + Tailwind foundation (commit `fed2fb0`)
+- Drawer navigation below 1024px, full-width search, horizontally scrollable tables, 44px touch targets, compact login on phones. Tailwind v4 installed with tokens (legacy CSS kept at that point).
+
+### Earlier — Stories 0001 / 0002 / 0007 (commit `e04d82c`)
+- Auth, shell/dashboard, account & reports implemented and verified (typecheck, lint, 9 unit tests, build, browser walkthrough of lockout, first-password, idle expiry, permissions).

@@ -1,3 +1,4 @@
+import { MAIN } from "@/components/ui/styles";
 import { TopBar } from "@/components/layout/top-bar";
 import { requireUser } from "@/lib/auth/session";
 import { IdleGuard } from "@/features/auth/components/idle-guard";
@@ -10,7 +11,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <>
       <TopBar model={model} />
-      <main className="main" id="main">{children}</main>
+      <main className={MAIN} id="main">{children}</main>
       <IdleGuard idleMinutes={model.idleMinutes} />
     </>
   );

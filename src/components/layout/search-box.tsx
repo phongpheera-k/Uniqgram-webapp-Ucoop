@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { StatusChip, type ChipStatus } from "@/components/ui/status-chip";
 import { IC } from "@/lib/icons";
+import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
 import { searchMembersAction } from "@/features/shell/server/shell-actions";
 import type { MemberSearchHit, ShellMenuItem } from "@/features/shell/types";
@@ -74,11 +75,11 @@ export function SearchBox({ open, setOpen, items, canSearchMembers, kbdHint, cat
   }
 
   return (
-    <div onKeyDown={onKeyDown} className="sbox-wrap">
-      <div className={`sbox${open ? " open" : ""}`}>
+    <div onKeyDown={onKeyDown} className="relative flex flex-none items-center max-nav:static">
+      <div className={cn("flex items-center rounded-full transition-[background,box-shadow] duration-250 max-nav:ml-auto", open && "bg-bar-field shadow-[inset_0_0_0_1px_var(--color-bar-line)] max-nav:absolute max-nav:inset-x-2 max-nav:top-2.5 max-nav:z-41")}>
         <input
           ref={inputRef}
-          className="s-in"
+          className={cn("h-11 border-0 bg-transparent font-[inherit] text-[15px] text-white outline-none transition-[width,opacity,padding] duration-300 ease-[cubic-bezier(.2,.8,.2,1)] placeholder:text-bar-dim", open ? "w-[300px] pr-1 pl-[18px] opacity-100 max-[1100px]:w-[200px] max-nav:w-auto max-nav:flex-1" : "w-0 p-0 opacity-0")}
           type="search"
           placeholder="ค้นหาเมนู หรือ ชื่อ/เลขสมาชิก"
           aria-label="ค้นหา"
@@ -87,23 +88,23 @@ export function SearchBox({ open, setOpen, items, canSearchMembers, kbdHint, cat
           tabIndex={open ? 0 : -1}
           autoComplete="off"
         />
-        {!open ? <span className="kbd" aria-hidden="true" style={{ marginLeft: 4 }}>{kbdHint}</span> : null}
-        <button ref={btnRef} type="button" className="icon-btn" aria-label={`ค้นหา (${kbdHint})`} aria-expanded={open} title={`ค้นหา (${kbdHint})`} onClick={() => (open ? close(false) : setOpen(true))}>
+        {!open ? <span className="ml-1 rounded-sm border border-bar-line px-1.5 text-xs leading-[18px] whitespace-nowrap text-bar-chip-text max-[1100px]:hidden" aria-hidden="true">{kbdHint}</span> : null}
+        <button ref={btnRef} type="button" className="flex size-11 flex-none cursor-pointer items-center justify-center rounded-full bg-transparent text-bar-text hover:bg-bar-hover" aria-label={`ค้นหา (${kbdHint})`} aria-expanded={open} title={`ค้นหา (${kbdHint})`} onClick={() => (open ? close(false) : setOpen(true))}>
           <Icon d={IC.search} size={20} stroke={2} />
         </button>
       </div>
       {showResults ? (
-        <div className="results" role="listbox" aria-label="ผลการค้นหา">
-          {none ? <div style={{ padding: "14px 10px", color: "var(--muted)", fontSize: 14 }}>ไม่พบผลลัพธ์สำหรับ “{q.trim()}”</div> : null}
+        <div className="fixed inset-x-2 top-[68px] z-40 w-auto rounded-lg border border-line bg-white p-2 text-ink animate-drop shadow-[0_12px_32px_rgba(16,32,43,.22)] max-[640px]:top-[60px] nav:absolute nav:inset-x-auto nav:top-14 nav:right-0 nav:w-[380px] nav:max-w-[92vw]" role="listbox" aria-label="ผลการค้นหา">
+          {none ? <div className="px-2.5 py-3.5 text-sm text-muted">ไม่พบผลลัพธ์สำหรับ “{q.trim()}”</div> : null}
           {menuHits.length > 0 ? (
             <>
-              <div style={{ padding: "4px 10px", fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>เมนู</div>
+              <div className="px-2.5 py-1 text-[13px] font-semibold text-muted">เมนู</div>
               {menuHits.map((r) => (
-                <button key={r.id} type="button" className="sr" data-sr="1" role="option" aria-selected="false" onClick={() => r.route && go(r.route)}>
-                  <span className="mi-ic" style={{ width: 30, height: 30 }}><Icon d={r.icon} size={16} /></span>
-                  <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                    <span style={{ fontWeight: 600 }}>{r.label}</span>
-                    <span style={{ fontSize: 14, color: "var(--muted)" }}>{categoryLabelOf[r.id] ?? "ทั่วไป"} › {r.label}</span>
+                <button key={r.id} type="button" className="flex w-full cursor-pointer items-center gap-2.5 rounded-md border-0 bg-transparent px-2.5 py-2 text-left hover:bg-hover focus-visible:bg-hover" data-sr="1" role="option" aria-selected="false" onClick={() => r.route && go(r.route)}>
+                  <span className="flex size-[30px] flex-none items-center justify-center rounded-md bg-teal-light text-teal"><Icon d={r.icon} size={16} /></span>
+                  <span className="flex min-w-0 flex-col">
+                    <span className="font-semibold">{r.label}</span>
+                    <span className="text-sm text-muted">{categoryLabelOf[r.id] ?? "ทั่วไป"} › {r.label}</span>
                   </span>
                 </button>
               ))}
@@ -111,13 +112,13 @@ export function SearchBox({ open, setOpen, items, canSearchMembers, kbdHint, cat
           ) : null}
           {memberHits.length > 0 ? (
             <>
-              <div style={{ padding: "8px 10px 4px", fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>สมาชิก</div>
+              <div className="px-2.5 pt-2 pb-1 text-[13px] font-semibold text-muted">สมาชิก</div>
               {memberHits.map((m) => (
-                <button key={m.id} type="button" className="sr" data-sr="1" role="option" aria-selected="false" onClick={() => go(`/members?q=${m.id}`)}>
-                  <span style={{ width: 30, height: 30, borderRadius: 15, background: "var(--mute-bg)", color: "var(--mute)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, flex: "none" }}>{m.name.charAt(0)}</span>
-                  <span style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-                    <span style={{ fontWeight: 600 }}>{m.name}</span>
-                    <span style={{ fontSize: 14, color: "var(--muted)" }}>เลขสมาชิก <span className="tnum">{m.id}</span> · {m.dept}</span>
+                <button key={m.id} type="button" className="flex w-full cursor-pointer items-center gap-2.5 rounded-md border-0 bg-transparent px-2.5 py-2 text-left hover:bg-hover focus-visible:bg-hover" data-sr="1" role="option" aria-selected="false" onClick={() => go(`/members?q=${m.id}`)}>
+                  <span className="flex size-[30px] flex-none items-center justify-center rounded-full bg-mute-bg text-[13px] font-semibold text-mute">{m.name.charAt(0)}</span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="font-semibold">{m.name}</span>
+                    <span className="text-sm text-muted">เลขสมาชิก <span className="tabular-nums">{m.id}</span> · {m.dept}</span>
                   </span>
                   <StatusChip status={m.status as ChipStatus} />
                 </button>

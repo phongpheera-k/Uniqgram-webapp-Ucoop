@@ -6,6 +6,8 @@ import { Alert } from "@/components/feedback/alert";
 import { IC } from "@/lib/icons";
 import { loginAction } from "@/features/auth/server/auth-actions";
 import type { FormAlert, LoginState } from "@/features/auth/types";
+import { AUTH_CARD, BTN, BTN_GHOST, BTN_SM_MEDIUM, FIELD, LABEL, LINK_BTN } from "@/components/ui/styles";
+import { cn } from "@/lib/utils";
 
 export interface DemoAccount {
   username: string;
@@ -30,15 +32,15 @@ export function LoginForm({ initialUsername = "", initialAlert = null, demoAccou
   const alert = state.alert;
   return (
     <form
-      className="auth-card"
+      className={AUTH_CARD}
       action={(fd) => {
         formAction(fd);
         setPassword("");
       }}
     >
       <div>
-        <h2 style={{ margin: 0, fontSize: 24 }}>เข้าสู่ระบบ</h2>
-        <p style={{ margin: "4px 0 0", color: "var(--muted)" }}>กรอกชื่อผู้ใช้และรหัสผ่านที่ได้รับจากผู้ดูแลระบบ</p>
+        <h2 className="m-0 text-2xl">เข้าสู่ระบบ</h2>
+        <p className="mt-1 mb-0 text-muted">กรอกชื่อผู้ใช้และรหัสผ่านที่ได้รับจากผู้ดูแลระบบ</p>
       </div>
 
       {alert ? (
@@ -48,32 +50,32 @@ export function LoginForm({ initialUsername = "", initialAlert = null, demoAccou
       ) : null}
 
       <div>
-        <label className="lbl" htmlFor="lg-u">ชื่อผู้ใช้</label>
-        <input id="lg-u" name="username" className="field" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required autoFocus={!initialUsername} value={username} onChange={(e) => setUsername(e.target.value)} style={{ width: "100%", height: 44 }} />
+        <label className={LABEL} htmlFor="lg-u">ชื่อผู้ใช้</label>
+        <input id="lg-u" name="username" className={FIELD} type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required autoFocus={!initialUsername} value={username} onChange={(e) => setUsername(e.target.value)} />
       </div>
       <div>
-        <label className="lbl" htmlFor="lg-p">รหัสผ่าน</label>
-        <div style={{ display: "flex", gap: 8 }}>
-          <input id="lg-p" name="password" className="field" type={show ? "text" : "password"} autoComplete="current-password" required autoFocus={!!initialUsername} value={password} onChange={(e) => setPassword(e.target.value)} style={{ flex: 1, height: 44 }} />
-          <button type="button" className="btn ghost" aria-pressed={show} onClick={() => setShow((v) => !v)} style={{ minWidth: 76, height: 44 }}>
+        <label className={LABEL} htmlFor="lg-p">รหัสผ่าน</label>
+        <div className="flex gap-2">
+          <input id="lg-p" name="password" className={cn(FIELD, "flex-1")} type={show ? "text" : "password"} autoComplete="current-password" required autoFocus={!!initialUsername} value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button type="button" className={cn(BTN_GHOST, "h-11 min-w-[76px]")} aria-pressed={show} onClick={() => setShow((v) => !v)}>
             {show ? "ซ่อน" : "แสดง"}
           </button>
         </div>
       </div>
 
-      <button type="submit" className="btn" disabled={pending} style={{ height: 46, fontSize: 16 }}>
+      <button type="submit" className={cn(BTN, "h-[46px] text-base")} disabled={pending}>
         {pending ? "กำลังตรวจสอบ…" : "เข้าสู่ระบบ"}
       </button>
-      <Link href={username ? `/forgot-password?u=${encodeURIComponent(username)}` : "/forgot-password"} className="link-btn" style={{ alignSelf: "flex-start" }}>
+      <Link href={username ? `/forgot-password?u=${encodeURIComponent(username)}` : "/forgot-password"} className={cn(LINK_BTN, "self-start")}>
         ลืมรหัสผ่าน?
       </Link>
 
       {demoAccounts.length > 0 ? (
-        <div style={{ borderTop: "1px solid var(--line-soft)", paddingTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
-          <span style={{ fontSize: 14, color: "var(--muted)" }}>โหมดทดลอง — กดเพื่อกรอกให้ (รหัสผ่านทุกบัญชี {demoPassword})</span>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        <div className="flex flex-col gap-2.5 border-t border-line-soft pt-3.5">
+          <span className="text-sm text-muted">โหมดทดลอง — กดเพื่อกรอกให้ (รหัสผ่านทุกบัญชี {demoPassword})</span>
+          <div className="flex flex-wrap gap-2">
             {demoAccounts.map((d) => (
-              <button key={d.username} type="button" className="sm-btn demo" onClick={() => { setUsername(d.username); setPassword(demoPassword); }}>
+              <button key={d.username} type="button" className={BTN_SM_MEDIUM} onClick={() => { setUsername(d.username); setPassword(demoPassword); }}>
                 {d.username} · {d.label}
               </button>
             ))}

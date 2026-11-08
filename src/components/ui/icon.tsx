@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { cn } from "@/lib/utils";
 
 interface IconProps {
   /** SVG path data (see lib/icons). */
@@ -7,12 +7,12 @@ interface IconProps {
   stroke?: number;
   fill?: string;
   color?: string;
-  style?: CSSProperties;
+  className?: string;
 }
 
-export function Icon({ d, size = 18, stroke = 1.8, fill = "none", color = "currentColor", style }: IconProps) {
+export function Icon({ d, size = 18, stroke = 1.8, fill = "none", color = "currentColor", className }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: "none", ...style }}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={cn("shrink-0", className)}>
       <path d={d} />
     </svg>
   );

@@ -3,13 +3,15 @@ import { formatInt } from "@/lib/formatters/currency";
 import { ExportReportButton } from "@/features/reports/components/export-button";
 import { formatSigned } from "@/features/reports/server/report-service";
 import type { MemberReport } from "@/features/reports/server/report-queries";
+import { KPI, KPI_GRID, KPI_VALUE, NUM, PANEL, PANEL_H, STACK, TABLE, WRAP_ROW } from "@/components/ui/styles";
+import { cn } from "@/lib/utils";
 
 function Stat({ label, value, unit }: { label: string; value: string; unit: string }) {
   return (
-    <div className="panel kpi">
-      <span style={{ fontSize: 14, color: "#4a5560" }}>{label}</span>
-      <div className="kpi-v">
-        {value} <span style={{ fontSize: 14, fontWeight: 400, color: "var(--muted)" }}>{unit}</span>
+    <div className={cn(PANEL, KPI)}>
+      <span className="text-sm text-sub">{label}</span>
+      <div className={KPI_VALUE}>
+        {value} <span className="text-sm leading-[inherit] font-normal text-muted">{unit}</span>
       </div>
     </div>
   );
@@ -22,20 +24,20 @@ export function MemberReportView({ report }: { report: MemberReport }) {
     return <EmptyState title="ยังไม่มีข้อมูลรายงาน" text="ยังไม่มีการเคลื่อนไหวของสมาชิกในช่วง 6 เดือนที่ผ่านมา เมื่อมีการรับสมาชิกหรือสมาชิกพ้นสภาพ รายงานจะแสดงที่นี่" action={{ label: "กลับหน้าภาพรวม", href: "/dashboard" }} />;
   }
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div className="kpi-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+    <div className={STACK}>
+      <div className={cn(KPI_GRID, "grid-cols-[repeat(auto-fit,minmax(220px,1fr))]")}>
         <Stat label={`สมาชิก ณ สิ้นเดือน ${totals.latestLabel ?? ""}`} value={formatInt(totals.latestClosing ?? 0)} unit="คน" />
         <Stat label={`เข้าใหม่ ${rows.length} เดือน`} value={formatInt(totals.joined)} unit="คน" />
         <Stat label={`ออก ${rows.length} เดือน`} value={formatInt(totals.left)} unit="คน" />
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 20, alignItems: "flex-start" }}>
-        <section className="panel" aria-labelledby="h-rep1" style={{ flex: "999 1 560px", minWidth: 0 }}>
-          <div className="panel-h">
+      <div className={WRAP_ROW}>
+        <section className={cn(PANEL, "min-w-0 flex-[999_1_560px]")} aria-labelledby="h-rep1">
+          <div className={PANEL_H}>
             <h2 id="h-rep1">สมาชิกเข้า–ออกรายเดือน</h2>
             {canExport ? <ExportReportButton /> : null}
           </div>
-          <div style={{ overflowX: "auto" }}>
-            <table className="tbl">
+          <div className="overflow-x-auto">
+            <table className={TABLE}>
               <caption className="sr-only">จำนวนสมาชิกเข้าใหม่ ลาออก และคงเหลือสิ้นเดือน ย้อนหลัง {rows.length} เดือน</caption>
               <thead>
                 <tr>
@@ -49,27 +51,27 @@ export function MemberReportView({ report }: { report: MemberReport }) {
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.label}>
-                    <th scope="row" style={{ background: "transparent", fontWeight: 400, color: "inherit", fontSize: 15 }}>{r.label}</th>
-                    <td className="num">{r.joined}</td>
-                    <td className="num">{r.left}</td>
-                    <td className="num">{formatSigned(r.net)}</td>
-                    <td className="num" style={{ fontWeight: 600 }}>{formatInt(r.closing)}</td>
+                    <th scope="row" className="bg-transparent! text-[15px]! font-normal! text-inherit!">{r.label}</th>
+                    <td className={NUM}>{r.joined}</td>
+                    <td className={NUM}>{r.left}</td>
+                    <td className={NUM}>{formatSigned(r.net)}</td>
+                    <td className={cn(NUM, "font-semibold")}>{formatInt(r.closing)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </section>
-        <section className="panel" aria-labelledby="h-rep2" style={{ flex: "1 1 340px", minWidth: 0 }}>
-          <div className="panel-h"><h2 id="h-rep2">สมาชิกแยกตามหน่วยงาน</h2></div>
-          <ul style={{ listStyle: "none", margin: 0, padding: "12px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
+        <section className={cn(PANEL, "min-w-0 flex-[1_1_340px]")} aria-labelledby="h-rep2">
+          <div className={PANEL_H}><h2 id="h-rep2">สมาชิกแยกตามหน่วยงาน</h2></div>
+          <ul className="m-0 flex list-none flex-col gap-3 px-4 py-3">
             {depts.map((d) => (
               <li key={d.dept}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 15 }}>
+                <div className="flex justify-between text-[15px]">
                   <span>{d.dept}</span>
-                  <span className="tnum"><strong>{formatInt(d.count)}</strong> <span style={{ color: "var(--muted)" }}>({d.pct})</span></span>
+                  <span className="tabular-nums"><strong>{formatInt(d.count)}</strong> <span className="text-muted">({d.pct})</span></span>
                 </div>
-                <div className="bar" aria-hidden="true"><div style={{ width: `${d.barPct}%` }} /></div>
+                <div className="mt-1 h-2 rounded-sm bg-line-soft" aria-hidden="true"><div className="h-2 rounded-sm bg-teal" style={{ width: `${d.barPct}%` }} /></div>
               </li>
             ))}
           </ul>

@@ -4,6 +4,7 @@ import { useRef, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { IC } from "@/lib/icons";
+import { cn } from "@/lib/utils";
 import { toggleFavoriteAction } from "@/features/shell/server/shell-actions";
 import type { ShellCategory } from "@/features/shell/types";
 
@@ -11,14 +12,14 @@ interface Props {
   categories: ShellCategory[];
   openCat: string | null;
   setOpenCat: (id: string | null) => void;
-  /** Extra class for the <nav> (used by the mobile drawer). */
-  className?: string;
+  /** Mobile / tablet: the nav is a slide-in drawer, shown only while open. */
+  drawerOpen?: boolean;
   /** Called after navigating to an item (lets the mobile drawer close). */
   onNavigate?: () => void;
 }
 
 /** Start menu (SHL-02, SHL-06): 6 categories, popup under the button, arrow/Enter/Esc keyboard control. */
-export function NavMenu({ categories, openCat, setOpenCat, className, onNavigate }: Props) {
+export function NavMenu({ categories, openCat, setOpenCat, drawerOpen = false, onNavigate }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const barRef = useRef<HTMLElement>(null);
@@ -72,33 +73,48 @@ export function NavMenu({ categories, openCat, setOpenCat, className, onNavigate
   }
 
   return (
-    <nav id="main-nav" aria-label="เมนูหลัก" ref={barRef} onKeyDown={onKeyDown} className={`topnav${className ? ` ${className}` : ""}`}>
+    <nav id="main-nav" aria-label="เมนูหลัก" ref={barRef} onKeyDown={onKeyDown} className={cn(
+        "fixed top-14 bottom-0 left-0 z-35 w-[min(360px,90vw)] flex-col items-stretch gap-0.5 overflow-y-auto bg-slate p-2 shadow-[8px_0_24px_rgba(16,32,43,.35)] min-[641px]:top-16",
+        "nav:static nav:z-auto nav:h-full nav:w-auto nav:min-w-0 nav:flex-1 nav:flex-row nav:items-center nav:overflow-visible nav:bg-transparent nav:p-0 nav:shadow-none",
+        drawerOpen ? "flex" : "hidden nav:flex",
+      )}
+    >
       {categories.map((c) => {
         const open = openCat === c.id;
-        const cls = ["cat", open && "is-open", c.soon && "is-soon", activeCat === c.id && "is-active"].filter(Boolean).join(" ");
+        const cls = cn(
+          "flex h-12 w-full cursor-pointer items-center gap-1.5 rounded-md border-0 px-2 text-[15px] font-medium whitespace-nowrap transition-colors duration-150 min-[1101px]:gap-2 min-[1101px]:px-3 nav:h-11 nav:w-auto",
+          open ? "bg-bar-hover text-white nav:rounded-t-md nav:rounded-b-none nav:bg-white nav:text-slate" : "bg-transparent hover:bg-bar-hover",
+          !open && (c.soon ? "text-bar-soon" : "text-bar-text"),
+          open && c.soon && "nav:text-muted",
+          !open && activeCat === c.id && "shadow-[inset_0_-3px_0_var(--color-teal-accent)]",
+        );
         return (
-          <div key={c.id} className="cat-wrap">
+          <div key={c.id} className="relative nav:flex nav:h-full nav:items-center">
             <button type="button" className={cls} data-cat={c.id} aria-haspopup="true" aria-expanded={open} onClick={() => setOpenCat(open ? null : c.id)}>
               <Icon d={c.icon} />
-              <span>{c.label}</span>
-              {c.soon ? <span className="soon-tag">เร็ว ๆ นี้</span> : null}
-              <Icon d={IC.chevronDown} size={14} stroke={2} style={{ opacity: 0.7 }} />
+              <span className="flex-1 text-left nav:flex-none nav:text-center">{c.label}</span>
+              {c.soon ? <span className={cn("inline rounded-sm px-1.5 text-xs leading-[18px] font-medium nav:hidden min-[1181px]:inline", open ? "bg-bar-chip text-bar-chip-text nav:bg-mute-bg nav:text-sub" : "bg-bar-chip text-bar-chip-text")}>เร็ว ๆ นี้</span> : null}
+              <Icon d={IC.chevronDown} size={14} stroke={2} className="opacity-70" />
             </button>
             {open ? (
-              <div className="popup" role="menu" aria-label={c.label}>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, padding: "6px 10px 10px", borderBottom: "1px solid var(--line-soft)", marginBottom: 6 }}>
-                  <span style={{ fontWeight: 700, fontSize: 16 }}>{c.label}</span>
-                  <span style={{ fontSize: 14, color: "var(--muted)" }}>{c.soon ? "อยู่ระหว่างพัฒนา" : c.id === "fav" ? "เมนูที่ปักดาวไว้" : `${c.items.length} เมนู`}</span>
+              <div className="z-40 mt-0.5 mb-1.5 w-full rounded-lg border border-line bg-white p-2 text-ink nav:absolute nav:top-[54px] nav:left-0 nav:m-0 nav:w-[400px] nav:max-w-[90vw] nav:animate-drop nav:rounded-[0_8px_8px_8px] nav:shadow-[0_12px_32px_rgba(16,32,43,.22)]" role="menu" aria-label={c.label}>
+                <div className="mb-1.5 flex items-baseline justify-between gap-3 border-b border-line-soft px-2.5 pt-1.5 pb-2.5">
+                  <span className="text-base font-bold">{c.label}</span>
+                  <span className="text-sm text-muted">{c.soon ? "อยู่ระหว่างพัฒนา" : c.id === "fav" ? "เมนูที่ปักดาวไว้" : `${c.items.length} เมนู`}</span>
                 </div>
-                {c.items.length === 0 ? <div style={{ padding: "16px 10px", color: "var(--muted)", fontSize: 14 }}>ยังไม่มีเมนูโปรด — กดรูปดาวข้างเมนูใดก็ได้เพื่อเก็บไว้ที่นี่</div> : null}
+                {c.items.length === 0 ? <div className="px-2.5 py-4 text-sm text-muted">ยังไม่มีเมนูโปรด — กดรูปดาวข้างเมนูใดก็ได้เพื่อเก็บไว้ที่นี่</div> : null}
                 {c.items.map((it) => (
-                  <div className="mi-row" key={it.id}>
+                  <div className="flex items-center gap-1" key={it.id}>
                     <button
                       type="button"
                       data-mi="1"
                       role="menuitem"
                       aria-disabled={it.soon}
-                      className={["mi", it.soon && "is-soon", it.route === pathname && "is-current"].filter(Boolean).join(" ")}
+                      className={cn(
+                        "flex min-w-0 flex-1 items-center gap-3 rounded-md border-0 p-2.5 text-left",
+                        it.soon ? "cursor-not-allowed hover:bg-[#f6f7f8]" : "cursor-pointer hover:bg-hover focus-visible:bg-hover",
+                        it.route === pathname ? "bg-teal-light" : "bg-transparent",
+                      )}
                       onClick={() => {
                         if (it.soon || !it.route) return;
                         setOpenCat(null);
@@ -106,19 +122,19 @@ export function NavMenu({ categories, openCat, setOpenCat, className, onNavigate
                         router.push(it.route);
                       }}
                     >
-                      <span className="mi-ic"><Icon d={it.icon} size={20} /></span>
-                      <span style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span className="mi-label" style={{ fontWeight: 600, fontSize: 15, color: "var(--text)" }}>{it.label}</span>
-                          {it.soon ? <span className="chip mute" style={{ fontSize: 12, padding: "0 8px" }}>เร็ว ๆ นี้</span> : null}
+                      <span className={cn("flex size-9 flex-none items-center justify-center rounded-md", it.soon ? "bg-[#eef1f3] text-icon" : "bg-teal-light text-teal")}><Icon d={it.icon} size={20} /></span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="flex items-center gap-2">
+                          <span className={cn("text-[15px] font-semibold", it.soon ? "text-muted" : "text-ink")}>{it.label}</span>
+                          {it.soon ? <span className="inline-flex items-center rounded-full bg-mute-bg px-2 text-xs font-medium whitespace-nowrap text-mute">เร็ว ๆ นี้</span> : null}
                         </span>
-                        <span style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.35 }}>{it.desc}</span>
+                        <span className="text-sm leading-[1.35] text-muted">{it.desc}</span>
                       </span>
                     </button>
                     {!it.soon ? (
                       <button
                         type="button"
-                        className="star"
+                        className="flex size-10 flex-none cursor-pointer items-center justify-center rounded-md border-0 bg-transparent hover:bg-[#f1f3f5]"
                         aria-pressed={it.fav}
                         aria-label={it.fav ? `เอา “${it.label}” ออกจาก Favorite` : `ปักดาว “${it.label}” ไว้ใน Favorite`}
                         onClick={() => startTransition(() => toggleFavoriteAction(it.id))}
